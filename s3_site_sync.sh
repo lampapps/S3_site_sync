@@ -114,7 +114,7 @@ if [[ "$1" = "live" ]]; then
     aws s3 rb s3://$STAGING_BUCKET --force
     yellow '--> Invalidating all objects on Cloudfront forcing the cache to refresh from origin'
     aws cloudfront create-invalidation --distribution-id $CLOUDFRONTID --paths "/*"
-    green 'Deployed to live bucket. Do not forget to turn on gzip in AWS Cloudfront'
+    green 'Deployed to live bucket. Do not forget to turn on gzip in AWS Cloudfront and to set custom error pages 404 and 403'
 
     elif [[ "$1" = "staging" ]]; then
     #return the url of the website
