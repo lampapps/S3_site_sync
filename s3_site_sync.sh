@@ -3,21 +3,27 @@
 # credits: based on savjee.be/_deploy.sh at github
 # https://github.com/Savjee/savjee.be/blob/1a84362c4424ecd2ee7d368298ed30c218a2d66a/_deploy.sh
 
-#Updated to build and sync Jeykll site
+#Updated to build and sync Jekyll site and few other things
 
 ##
 # Options
 ##
 
-AWS_PROFILE='default'
-STAGING_BUCKET='test.'
-LIVE_BUCKET='www.'
-SITE_DIR='_site/'
-REGION='us-east-1'
-CLOUDFRONTID='enterid from cloudfront'
-INDEX_PAGE='index.html'
-ERROR_PAGE='error.html'
+# Uncomment variables to use within this script, or to manage multiple websites with this one script, 
+# cut and paste just the Options and the import function into separate files, one for each site, and place them into the root of each website.
+# Call the script from there. This allows me to update the actual script without having to replicate it to each website folder each time.
 
+# AWS_PROFILE='default'
+# STAGING_BUCKET='test.'
+# LIVE_BUCKET='www.'
+# SITE_DIR='_site/'
+# REGION='us-east-1'
+# CLOUDFRONTID='enterid from cloudfront'
+# INDEX_PAGE='index.html'
+# ERROR_PAGE='error.html'
+
+# Uncomment this import function only if you cut and pasted this to another script as discussed above. Edit path to suit.
+# . ~/path/to/s3_site_sync.sh
 
 ##
 # Usage
@@ -94,7 +100,7 @@ aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.css' --content-t
 yellow '--> Uploading js files'
 aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.js' --content-type 'application/javascript' --cache-control 'max-age=604800' --acl public-read --delete --profile $AWS_PROFILE
 
-# Sync media files first (Cache: expire in 10weeks)
+# Sync media files first (Cache: expire in 10 weeks)
 yellow '--> Uploading images (jpg, png, ico)'
 aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.png' --include '*.jpg' --include '*.ico' --expires 'Sat, 20 Nov 2025 18:46:39 GMT' --cache-control 'max-age=6048000' --acl public-read --delete --profile $AWS_PROFILE
 
@@ -103,10 +109,9 @@ aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.png' --include '
 yellow '--> Uploading html files'
 aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.html' --content-type 'text/html' --cache-control 'max-age=7200, must-revalidate' --acl public-read --delete --profile $AWS_PROFILE
 
-
 # Sync everything else
 yellow '--> Syncing everything else'
-aws s3 sync $SITE_DIR $BUCKET --delete --cache-control 'max-age=7200, must-revalidate' --acl public-read --delete --profile $AWS_PROFILE
+aws s3 sync $SITE_DIR s3://$BUCKET --delete --cache-control 'max-age=7200, must-revalidate' --acl public-read --delete --profile $AWS_PROFILE
 
 if [[ "$1" = "live" ]]; then
     # Remove staging bucket to clean up things
