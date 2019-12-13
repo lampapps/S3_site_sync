@@ -9,16 +9,16 @@
 # Options
 ##
 
-# Uncomment variables to use within this script, or to manage multiple websites with this one script, 
+# Uncomment variables to use within this script, or to manage multiple websites with this one script,
 # cut and paste just the Options and the import function into separate files, one for each site, and place them into the root of each website.
 # Call the script from there. This allows me to update the actual script without having to replicate it to each website folder each time.
 
 # AWS_PROFILE='default'
-# STAGING_BUCKET='test.'
-# LIVE_BUCKET='www.'
+# STAGING_BUCKET='dev.'
+# LIVE_BUCKET=''
 # SITE_DIR='_site/'
 # REGION='us-east-1'
-# CLOUDFRONTID='enterid from cloudfront'
+# CLOUDFRONTID='enter id from cloudfront'
 # INDEX_PAGE='index.html'
 # ERROR_PAGE='error.html'
 
@@ -31,12 +31,12 @@
 usage() {
 cat << _EOF_
 Usage: ${0} [staging | live]
-    
+
     staging		Deploy to the staging bucket
     live		Deploy to the live (www) bucket
 _EOF_
 }
- 
+
 ##
 # Color stuff
 ##
@@ -94,24 +94,24 @@ yellow '--> Running Jekyll build'
 jekyll build
 
 yellow '--> Uploading css files'
-aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.css' --content-type 'text/css' --cache-control 'max-age=604800' --acl public-read --delete --profile $AWS_PROFILE
+aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.css' --content-type 'text/css' --cache-control 'max-age=31536000' --acl public-read --delete --profile $AWS_PROFILE
 
 
 yellow '--> Uploading js files'
-aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.js' --content-type 'application/javascript' --cache-control 'max-age=604800' --acl public-read --delete --profile $AWS_PROFILE
+aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.js' --content-type 'application/javascript' --cache-control 'max-age=31536000' --acl public-read --delete --profile $AWS_PROFILE
 
 # Sync media files first (Cache: expire in 10 weeks)
 yellow '--> Uploading images (jpg, png, ico)'
-aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.png' --include '*.jpg' --include '*.ico' --expires 'Sat, 20 Nov 2025 18:46:39 GMT' --cache-control 'max-age=6048000' --acl public-read --delete --profile $AWS_PROFILE
+aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.png' --include '*.jpg' --include '*.ico' --cache-control 'max-age=31536000' --acl public-read --delete --profile $AWS_PROFILE
 
 
 # Sync html files (Cache: 2 hours)
 yellow '--> Uploading html files'
-aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.html' --content-type 'text/html' --cache-control 'max-age=7200, must-revalidate' --acl public-read --delete --profile $AWS_PROFILE
+aws s3 sync $SITE_DIR s3://$BUCKET --exclude '*.*' --include '*.html' --content-type 'text/html' --cache-control 'max-age=31536000, must-revalidate' --acl public-read --delete --profile $AWS_PROFILE
 
 # Sync everything else
 yellow '--> Syncing everything else'
-aws s3 sync $SITE_DIR s3://$BUCKET --delete --cache-control 'max-age=7200, must-revalidate' --acl public-read --delete --profile $AWS_PROFILE
+aws s3 sync $SITE_DIR s3://$BUCKET --delete --cache-control 'max-age=31536000, must-revalidate' --acl public-read --delete --profile $AWS_PROFILE
 
 if [[ "$1" = "live" ]]; then
     # Remove staging bucket to clean up things
@@ -125,7 +125,3 @@ if [[ "$1" = "live" ]]; then
     #return the url of the website
     green 'http://'$BUCKET'.s3-website-'$REGION'.amazonaws.com/index.html'
 fi
-
-
-
-
