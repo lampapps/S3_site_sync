@@ -1,6 +1,6 @@
 # S3_site_sync
 
-A bash script to sync local folder with S3 using AWS CLI
+A bash script to sync local web site with S3 using AWS CLI
 
 ## Getting Started
 
